@@ -1,168 +1,301 @@
 ---
-title: API Reference
+title: Документация API verificate.ru
 
 language_tabs:
   - shell
-  - ruby
-  - python
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='http://github.com/tripit/slate'>Documentation Powered by Slate</a>
+  - <a href='http://www.verificate.ru'>Получить API токен</a>
+  - <a href='http://github.com/tripit/slate'>Документация создана используя Slate</a>
 
 includes:
   - errors
 
-search: true
+search: false
 ---
 
-# Introduction
+# Начало
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Здравствуйте! 
+Добро пожаловать на страницу документации API проекта [verificate.ru](http://www.verificate.ru/)! Используя наш API вы можете отправлять смс и звонки, получать их статусы и уведомления о текущем состоянии ресурсов.
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+<!-- Эта страница создана используя open source платформу для создания документации [Slate](http://github.com/tripit/slate). -->
 
-This example API documentation page was created with [Slate](http://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+# Описание
 
-# Authentication
-
-> To authorize, use this code:
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
+> Для авторизации используйте следующий код:
 
 ```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+curl "api_endpoint"
+  -H "Token: personal_token"
 ```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+> Обязательно замените `personal_token` на ваш личный токен.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+Для доступа к ресурсам API вам необходим токен. Токен это обычная строка-ключ, который выдается пользователю при регистрации и открывает ему доступ к функционалу нашего API. Получить токен вы можете после успешной [регистрации](http://verfificate.ru/auth/register) на странице [личного кабинета](http://verfificate.ru/private/profile).
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+Полученный ключ можно использовать передав ```HTTP``` заголовок с именем ```token```, либо добавив в тело запроса поле ```token```.
 
-`Authorization: meowmeowmeow`
+<aside class="warning">Для доступа к API, запрос <b>ОБЯЗАТЕЛЬНО</b> должен содержать токен.</aside>
 
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
+# Смс сообщение
 
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+## Создание смс
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl "http://verificate.ru/api/v1/sms"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+  -d "{recipient:'123456789',content:'Rachel, we were on a break!'}"
 ```
 
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Isis",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-> The above command returns JSON structured like this:
+> Запрос возвращает следующую JSON структуру:
 
 ```json
 {
-  "id": 2,
-  "name": "Isis",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "id": 1,
+  "recipient": "123456789",
+  "content": "Rachel, we were on a break!",
+  "status": "pending"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+Эта точка позволяет создать и отправить смс сообщение.
 
-<aside class="warning">If you're not using an administrator API key, note that some kittens will return 403 Forbidden if they are hidden for admins only.</aside>
+### HTTP запрос
 
-### HTTP Request
+`POST http://verificate.ru/api/v1/sms`
 
-`GET http://example.com/kittens/<ID>`
+### Параметры JSON тела запроса
 
-### URL Parameters
-
-Parameter | Description
+Параметр | Описание
 --------- | -----------
-ID | The ID of the kitten to retrieve
+to | Номер на который направлено сообщение
+content | Тело смс сообщения
 
+<aside class="warning">Все указанные в таблице поля являются необходимыми для успешного  создания сообщения.</aside>
+
+## Смс по id записи
+
+```shell
+curl "http://verificate.ru/api/v1/sms/1"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+```
+
+> Запрос возвращает следующую JSON структуру:
+
+```json
+{
+  "id": 1,
+  "recipient": "123456789",
+  "content": "hello world",
+  "status": "pending"
+}
+```
+
+Эта точка позволяет получить информацию о ресурсе по его id.
+
+### HTTP запрос
+
+`GET http://verificate.ru/api/v1/sms/<id>`
+
+### URL параметры
+
+Параметр | Описание
+--------- | -----------
+id | id смс сообщения
+
+## Список смс сообщений
+
+```shell
+curl "http://verificate.ru/api/v1/sms"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+```
+
+> Запрос возвращает следующую JSON структуру:
+
+```json
+{
+  "data": [
+    {
+      "id": 15,
+      "recipient": "+123456789",
+      "content": "hello world",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "recipient": "+31415926534",
+      "content": "bazinga",
+      "status": "pending"
+    },
+    ...
+    {
+      "id": 7,
+      "recipient": "(495) 202-1308",
+      "content": "Ad optio deserunt magnam harum praesentium. Eos a dolor alias voluptatem. Aspernatur temporibus dolorum incidunt id nam.",
+      "status": "created"
+    },
+    {
+      "id": 6,
+      "recipient": "(35222) 73-9763",
+      "content": "Inventore quo maiores vel odit et sint facere pariatur. Nisi at consequatur illum odio. Officia id sed sequi modi doloremque. Eum rerum molestias quos deserunt repudiandae.",
+      "status": "created"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "total": 15,
+      "count": 10,
+      "per_page": 10,
+      "current_page": 1,
+      "total_pages": 2,
+      "links": {
+        "next": "http://verificate.ru/api/v1/sms?page=2"
+      }
+    }
+  }
+}
+```
+
+Эта точка позволяет получить информацию о всех ресурсах, на странице.
+
+### HTTP запрос
+
+`GET http://verificate.ru/api/v1/sms`
+
+### Параметры запроса
+
+Имя параметра | Значение по-умолчанию | Описание
+--------- | ------- | -----------
+page | 1 | Текущая страница
+
+# Звонок
+
+## Создание звонка
+
+```shell
+curl "http://verificate.ru/api/v1/calls"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+  -d "{recipient:'123456789',content:'Rachel, we were on a break!'}"
+```
+
+> Запрос возвращает следующую JSON структуру:
+
+```json
+{
+  "id": 1,
+  "recipient": "123456789",
+  "content": "Rachel, we were on a break!",
+  "status": "pending"
+}
+```
+
+Эта точка позволяет создать и отправить звонок на номер пользователя.
+
+### HTTP запрос
+
+`POST http://verificate.ru/api/v1/calls`
+
+### Параметры JSON тела запроса
+
+Параметр | Описание
+--------- | -----------
+recipient | Номер на который направлен звонок
+content | Тело звонка
+
+<aside class="warning">Все указанные в таблице поля являются необходимыми для создания звонка.</aside>
+
+## Звонок по id записи
+
+```shell
+curl "http://verificate.ru/api/v1/calls/1"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+```
+
+> Запрос возвращает следующую JSON структуру:
+
+```json
+{
+  "id": 1,
+  "recipient": "123456789",
+  "content": "hello world",
+  "status": "pending"
+}
+```
+
+Эта точка позволяет получить информацию о ресурсе по его id.
+
+### HTTP запрос
+
+`GET http://verificate.ru/api/v1/calls/<id>`
+
+### URL параметры
+
+Параметр | Описание
+--------- | -----------
+id | id смс сообщения
+
+## Список звонков
+
+```shell
+curl "http://verificate.ru/api/v1/calls"
+  -H "token: 37a6259cc0c1dae299a7866489dff0bd"
+```
+
+> Запрос возвращает следующую JSON структуру:
+
+```json
+{
+  "data": [
+    {
+      "id": 15,
+      "recipient": "+123456789",
+      "content": "hello world",
+      "status": "pending"
+    },
+    {
+      "id": 14,
+      "recipient": "+31415926534",
+      "content": "bazinga",
+      "status": "pending"
+    },
+    ...
+    {
+      "id": 7,
+      "recipient": "(495) 202-1308",
+      "content": "Ad optio deserunt magnam harum praesentium. Eos a dolor alias voluptatem. Aspernatur temporibus dolorum incidunt id nam.",
+      "status": "created"
+    },
+    {
+      "id": 6,
+      "recipient": "(35222) 73-9763",
+      "content": "Inventore quo maiores vel odit et sint facere pariatur. Nisi at consequatur illum odio. Officia id sed sequi modi doloremque. Eum rerum molestias quos deserunt repudiandae.",
+      "status": "created"
+    }
+  ],
+  "meta": {
+    "pagination": {
+      "total": 15,
+      "count": 10,
+      "per_page": 10,
+      "current_page": 1,
+      "total_pages": 2,
+      "links": {
+        "next": "http://verificate.ru/api/v1/calls?page=2"
+      }
+    }
+  }
+}
+```
+
+Эта точка позволяет получить информацию о всех ресурсах, на странице.
+
+### HTTP запрос
+
+`GET http://verificate.ru/api/v1/calls`
+
+### Параметры запроса
+
+Имя параметра | Значение по-умолчанию | Описание
+--------- | ------- | -----------
+page | 1 | Текущая страница
